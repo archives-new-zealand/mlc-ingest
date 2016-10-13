@@ -1,0 +1,308 @@
+{
+    "title": "Rosetta CSV Validation Schema - Archives NZ",
+    "description": "Draft schema for validating CSV files for ingest in Rosetta at Archives New Zealand.",
+	 "validator": "http://csvlint.io/",
+	 "standard" : "http://dataprotocols.org/json-table-schema/",
+    "fields": [
+        { 
+            "name": "Object Type",
+            "description": "The type of object we're describing in the row.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": true,
+                "pattern": "^(SIP|IE|REPRESENTATION|FILE)$"
+            }
+        },
+        {
+            "name": "SIP Title",
+            "description": "Title of the SIP to ingest.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "Title (DC)",
+            "description": "Title of the digital object being uploaded.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "Access Rights Policy ID (IE)",
+            "description": "Rosetta access restriction key.",
+            "type": "http://www.w3.org/2001/XMLSchema#int",
+            "constraints": {
+                "required": false,
+                "pattern": "(^\\d{7}$|^$)"
+            }
+        },
+        {
+            "name": "Archway Unique ID (Object Identifier)",
+            "description": "Record number in Archive New Zealand's catalogue.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "(^R\\d{8}$|^$)"
+            }
+        },
+        {
+            "name": "Identifier - Archway Unique Id (DC)",
+            "description": "Record number in Archive New Zealand's catalogue.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "(^R\\d{8}$|^$)"
+            }
+        },
+        {
+            "name": "Archway Series Number",
+            "description": "Series number identifier as denoted by Archive New Zealand's catalogue.",
+            "type": "http://www.w3.org/2001/XMLSchema#int",
+            "constraints": {
+                "required": false,
+                "pattern": "(^\\d{5}$|^$)"
+            }
+        },
+        {
+            "name": "Provenance (dcterms)",
+            "description": "Code for originating agency, e.g. Archives New Zealand: AEZB.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "(^[A-Z]{4}$|^$)"
+            }
+        },
+        {
+            "name": "IE Entity Type",
+            "description": "Essence of the content found in the digital object.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "(^(ANZ_NotDetermined)$|^$)"
+            }
+        },
+        {
+            "name": "Submission Reason",
+            "description": "Overarching reason for submission into Rosetta, e.g. Digital Transfer.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "(^(DigitalTransfer)$|^$)"
+            }
+        },
+        {
+            "name": "Event Identifier Type",
+            "description": "Type of event ID we're assigning. This will always be EXTERNAL in CSV",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "^(EXTERNAL)$"
+            }
+        },
+        {
+            "name": "Event Identifier Value",
+            "description": "Unique ID for the event for this object within this SIP. We can only have on event.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "^(EXT_1)$"
+            }
+        },
+        {
+            "name": "Event Type",
+            "description": "Type of event we're documenting. This will always be CREATION at the moment in CSV.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "^(CREATION)$"
+            }
+        },
+        {
+            "name": "Event Description",
+            "description": "Description of the event. Workarounds mean that this will always be Provenance Note catch-all in CSV.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "^(Provenance Note)$"
+            }
+        },
+        {
+            "name": "Event Date",
+            "description": "Date the event happens. ISO8601: {YYYY-MM-DDThh:mm:ss}.",
+            "type": "http://www.w3.org/2001/XMLSchema#dateTime",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "Event Outcome1",
+            "description": "Status of the outcome of the event happening. E.g. SUCCESS or FAILURE. Will always be SUCCESS.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "^(SUCCESS)$"
+            }
+        },
+        {
+            "name": "Event Outcome Detail1",
+            "description": "Description of the event being listed under Provenance Note.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "Event Outcome Detail Extension1",
+            "description": "Additional information for description of the event being listed under Provenance Note.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "Event Outcome2",
+            "description": "Status of the outcome of the event happening. E.g. SUCCESS or FAILURE. Will always be SUCCESS.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "^(SUCCESS)$"
+            }
+        },
+        {
+            "name": "Event Outcome Detail2",
+            "description": "Description of the event being listed under Provenance Note.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "Event Outcome Detail Extension2",
+            "description": "Additional information for description of the event being listed under Provenance Note.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "Event Outcome3",
+            "description": "Status of the outcome of the event happening. E.g. SUCCESS or FAILURE. Will always be SUCCESS.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "^(SUCCESS)$"
+            }
+        },
+        {
+            "name": "Event Outcome Detail3",
+            "description": "Description of the event being listed under Provenance Note.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "Event Outcome Detail Extension3",
+            "description": "Additional information for description of the event being listed under Provenance Note.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },        
+        {
+            "name": "Revision Number",
+            "description": "Version of the file to be uploaded.",
+            "type": "http://www.w3.org/2001/XMLSchema#int",
+            "constraints": {
+                "required": false,
+                "pattern": "(^\\d{1,2}$|^$)"
+            }
+        },
+        {
+            "name": "Usage Type",
+            "description": "What we can do with file instance in Rosetta, e.g. VIEW.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "(^(VIEW)$|^$)"
+            }
+        },
+        {
+            "name": "Representation Code",
+            "description": "Is this file a digital original?",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "(^(True|False)$|^$)"
+            }
+        },
+        {
+            "name": "Preservation Type",
+            "description": "Preservation purpose of file instance in Rosetta, e.g. Preservation Master.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "(^(PRESERVATION_MASTER|DERIVATIVE_COPY)$|^$)"
+            }
+        },
+        {
+            "name": "Digital Original",
+            "description": "Is this file a digital original?",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "File Original Path",
+            "description": "Directory path to location of file to be uploaded. Path begins at root of ZIP and does not begin with an opening slash. Does not contain filename",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "File Original Name",
+            "description": "File name, including extension, of file to be uploaded.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "File Label",
+            "description": "File label as an alternative to name.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "MD5",
+            "description": "Hash generated for the file to be uploaded.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false,
+                "pattern": "(^([a-fA-F\\d]{32})$|^$)"
+            }
+        },
+        {
+            "name": "File Modification Date (General File Characteristics)",
+            "description": "Date file was last modified.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "File Creation Date (General File Characteristics)",
+            "description": "Date file was created.",
+            "type": "http://www.w3.org/2001/XMLSchema#string",
+            "constraints": {
+                "required": false
+            }
+        }
+    ]
+}
