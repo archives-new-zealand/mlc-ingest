@@ -12,7 +12,25 @@ from ProvenanceCSVHandlerClass import *
 from droidcsvhandlerclass import *
 from rosettacsvsectionsclass import RosettaCSVSections
 
+class SIPStringFunctions:
+   #e.g. R21079082_.../.../
+   FOLDER_REGEX = "(^R\\d{8}_)"
+   def mapRNumber(self, foldername):
+      return foldername.split('_', 1)[0]
+   
+   #e.g. PM_R21079164_...._0004.tif
+   REPRESENTATION_REGEX = "^(R\d{8})(_[A-Za-z0-9]+)+(_?)((\d{4})?).(xml|jp2|tif|TIF|pdf|jpg)$"
+   
+   #identify out dericative copy for different handling todo: document why
+   DERIVATIVE_COPY_REGEX = "^(R\d{8})(_[A-Za-z0-9]+)+_(\d{4}).jpg$"
+
+   #make a label from the filename for the ingest sheet
+   def makelabel(self, file_item):
+      return str(int(file_item.split('_')[-1].split('.')[0]))
+   
 class RosettaCSVGenerator:
+
+   sf = SIPStringFunctions()
 
    linzcsv = 'linz-xml-data.csv'
    linzlist = []
@@ -131,8 +149,15 @@ class RosettaCSVGenerator:
          for sectionrow in sectionrows:
             for fielddata in sectionrow:
                rowdata = rowdata + fielddata + ','
-            rowdata = rowdata.rstrip(',') + '\n'
+            rowdata = rowdata.rstrip(',') + '\n'            
          csvrows = csvrows + rowdata
+      
+      #this is the best i can think of because ExLibris have named two fields with the same
+      #title in CSV which doesn't help us when we're trying to use unique names for populating rows
+      #replaces SIP Title with Title (DC)
+      csvrows = csvrows.replace('"Object Type","SIP Title"','"Object Type","Title (DC)"')
+      
+      #finally output CSV
       sys.stdout.write(csvrows)
       
       for dupe in self.duplicateitemsaddedset:
@@ -144,8 +169,7 @@ class RosettaCSVGenerator:
          pathmask = self.config.get('path values', 'pathmask')
       return pathmask
 
-   def populaterows(self, field, listcontrolitem, sectionrow, csvindex, rnumber):
-   
+   def populaterows(self, field, listcontrolitem, sectionrow, csvindex, rnumber):   
       #populate cell with static values from config file
       if self.config.has_option('static values', field):
          rosettafield = self.config.get('static values', field)
@@ -191,35 +215,38 @@ class RosettaCSVGenerator:
 
          #LINZ Handle FILE rows here...
          elif field == 'File Label':
-            extension=listcontrolitem['NAME'][-3:]
-            if extension == 'xml':
-               filename = listcontrolitem['NAME']
-               if re.match("(^R\d{8}-\d{5}.xml$)", filename) is not None:
-                  filename = int(filename[10:-4])
-                  sectionrow[csvindex] = '"Metadata ' + self.createPageNumberText(listcontrolitem) + '"'
-               else:
-                  sectionrow[csvindex] = '"Item Metadata"'
-            elif extension == 'jp2' or extension == 'tif' or extension == 'TIF':
-               if self.AKL == False:
-                  sectionrow[csvindex] = self.createPageNumberText(listcontrolitem)
-               else:
-                  sectionrow[csvindex] = '"Image ' + self.createPageNumberText(listcontrolitem) + '"'
-            elif extension == 'jpg':
-               filename = listcontrolitem['NAME']
-               if re.match("(^R\d{8}-\d{5}.jpg$)", filename) is not None:
-                  if self.AKL == False:
-                     sectionrow[csvindex] = self.createPageNumberText(listcontrolitem)
-                  else:
-                     sectionrow[csvindex] = 'Image ' + self.createPageNumberText(listcontrolitem)
-               else:
-                  sys.stderr.write("Not correct format: " + str(listcontrolitem['FILE_PATH']) + "\n\n")
-            elif extension == 'pdf':
-               sectionrow[csvindex] = 'Complete File as PDF'
-            else:
-               #should already be filtered out at this point... 
-               sys.stderr.write(str(listcontrolitem['FILE_PATH']) + " not a valid file \n\n")
+            self.createFileLabel(listcontrolitem, sectionrow, csvindex)
 
       return sectionrow
+
+   def createFileLabel(self, listcontrolitem, sectionrow, csvindex):
+      extension=listcontrolitem['NAME'][-3:]
+      if extension == 'xml':
+         filename = listcontrolitem['NAME']
+         if re.match("(^R\d{8}-\d{5}.xml$)", filename) is not None:
+            filename = int(filename[10:-4])
+            sectionrow[csvindex] = '"Metadata ' + self.createPageNumberText(listcontrolitem) + '"'
+         else:
+            sectionrow[csvindex] = '"Item Metadata"'
+      elif extension == 'jp2' or extension == 'tif' or extension == 'TIF':
+         if self.AKL == False:
+            sectionrow[csvindex] = self.createPageNumberText(listcontrolitem)
+         else:
+            sectionrow[csvindex] = '"Image ' + self.createPageNumberText(listcontrolitem) + '"'
+      elif extension == 'jpg':
+         filename = listcontrolitem['NAME']
+         if re.match(self.sf.DERIVATIVE_COPY_REGEX, filename) is not None:
+            if self.AKL == False:
+               sectionrow[csvindex] = self.createPageNumberText(listcontrolitem)
+            else:
+               sectionrow[csvindex] = 'Image ' + self.createPageNumberText(listcontrolitem)
+         else:
+            sys.stderr.write("Not correct format: " + str(listcontrolitem['FILE_PATH']) + "\n\n")
+      elif extension == 'pdf':
+         sectionrow[csvindex] = 'Complete File as PDF'
+      else:
+         #should already be filtered out at this point... 
+         sys.stderr.write(str(listcontrolitem['FILE_PATH']) + " not a valid file \n\n")
 
    def createPageNumberText(self, listcontrolitem):   
       label = ''
@@ -230,23 +257,20 @@ class RosettaCSVGenerator:
                label = item['Proposed Label']
                break
       else:
-         label = str(int(listcontrolitem['NAME'].split('-')[1].split('.')[0]))
+         label = self.sf.makelabel(listcontrolitem['NAME'])
       return label
 
    def getRNumbers(self):
       rnumberlist = []
       linzfolders = self.grabFolders()
       for i in linzfolders:
-         if i != 'XML' and i != 'DC' and i != 'Masters':
-            if re.match("(^R\\d{8}$)", i) is not None:
+         if i != 'XML' and i != 'DC' and i != 'Masters' and i != 'Master':
+            if re.match(self.sf.FOLDER_REGEX, i) is not None:
                #we have something that looks like an R Number use it to populate REPRESENTATION
-               rnumberlist.append(i)
+               rnumberlist.append(self.sf.mapRNumber(i))
             else:
                sys.stderr.write("Error: Unexpected folder in structure, ignoring: " + str(i) + "\n\n")
-  
-      #for r in rnumberlist:
-      #   print r
-      #print len(rnumberlist)
+               
       if len(set(rnumberlist)) != len(rnumberlist):
          sys.exit("Error: Duplicates in R-Number list.")
    
@@ -256,10 +280,10 @@ class RosettaCSVGenerator:
    def check_consistency_of_type(self, filename):
       
       #pdf xml jp2 jpg
-      if re.match("(^(R\d{8})((-\d{5})?).(xml|jp2|tif|TIF|pdf|jpg)$)", filename) is not None:
+      if re.match(self.sf.REPRESENTATION_REGEX, filename) is not None:
          return True
       else:
-         sys.stderr.write("Unexpected files in DROID listing: " + str(filename) + "\n")
+         sys.stderr.write("Unexpected files in DROID listing: " + str(filename) + ". DROID list should only contain ingest files.\n")
          return False
     
    
@@ -298,7 +322,7 @@ class RosettaCSVGenerator:
       repdivision = {'PRESERVATION_MASTER': [], 'PDF DERIVATIVE_COPY': [], 'JPG DERIVATIVE_COPY': []}
       for item in filelist:
          #sys.stderr.write(str(item['FILE_PATH'] + "\n"))
-         if "XML" in item['FILE_PATH'] or "Masters" in item['FILE_PATH']:
+         if "XML" in item['FILE_PATH'] or ("Masters" in item['FILE_PATH'] or "Master" in item['FILE_PATH']):
             repdivision['PRESERVATION_MASTER'].append(item)
          elif "DC" in item['FILE_PATH']:
             if item['FILE_PATH'][-3:] == 'jpg':
@@ -328,8 +352,7 @@ class RosettaCSVGenerator:
       self.lastrnumber = 0
       rnumberlist = self.getRNumbers()
       IECount = 0
-      
-      
+            
       for item in self.exportlist:
 
          itemfixity = False
