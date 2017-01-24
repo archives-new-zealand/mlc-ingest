@@ -270,7 +270,9 @@ class RosettaCSVGenerator:
                rnumberlist.append(self.sf.mapRNumber(i))
             else:
                sys.stderr.write("Error: Unexpected folder in structure, ignoring: " + str(i) + "\n\n")
-               
+               sys.stderr.write("Exiting.\n")         
+               sys.exit(1)               
+
       if len(set(rnumberlist)) != len(rnumberlist):
          sys.exit("Error: Duplicates in R-Number list.")
    
@@ -284,9 +286,9 @@ class RosettaCSVGenerator:
          return True
       else:
          sys.stderr.write("Unexpected files in DROID listing: " + str(filename) + ". DROID list should only contain ingest files.\n")
-         return False
-    
-   
+         sys.stderr.write("Exiting.\n")         
+         sys.exit(1)
+         
    #Create a list of files belonging to a specific R Number
    def buildfilelist(self, rnumber):
       filelist = []

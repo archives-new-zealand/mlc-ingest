@@ -40,9 +40,9 @@ def main():
       config = ConfigParser.RawConfigParser()
       config.read(args.args)   
       if config.has_option('arguments', 'title'):
-         sys.stderr.write("Using " + config.get('arguments', 'title') + " args configuration file.")
+         sys.stderr.write("Using " + config.get('arguments', 'title') + " args configuration file." + "\n")
       else:
-         sys.stderr.write("Using an arguments configuration file.")
+         sys.stderr.write("Using an arguments configuration file." + "\n")
 
       if config.has_option('arguments', 'droidexport'):
          args.csv = config.get('arguments', 'droidexport')
