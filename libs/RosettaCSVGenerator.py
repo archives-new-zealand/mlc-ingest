@@ -113,7 +113,20 @@ class RosettaCSVGenerator:
       droidfield = file[rosettafield]
 
       if field == 'File Location' or field == 'File Original Path':
-         returnfield = os.path.dirname(droidfield).replace(pathmask, '').replace('\\','/') + '/'
+         if '\\' in droidfield and os.sep == '/':
+            sys.stderr.write("Warning: Setting path in grabdroidvalue() - DROID was run on Windows." + "\n")
+            newpath = droidfield.rsplit('\\', 1)
+            if len(newpath) != 2:	#exit or continue normal operations
+               sys.stderr.write("Having difficulty working with Windows paths in Linux." + "\n")
+               os.exit(1)
+            if len(newpath) > 2:
+               sys.stderr.write("Some other error working with Windows paths in Linux." + "\n")
+               os.exit(1)
+            #repatriate the slash we require
+            newpath = newpath[0]
+            returnfield = newpath.replace(pathmask, '').replace('\\','/') + '/'
+         else:
+            returnfield = os.path.dirname(droidfield).replace(pathmask, '').replace('\\','/') + '/'
       #elif field == 'File Original Path':
       #   returnfield = droidfield.replace(pathmask, '').replace('\\','/')
       else:
