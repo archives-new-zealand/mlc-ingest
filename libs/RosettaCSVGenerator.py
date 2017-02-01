@@ -19,10 +19,12 @@ class SIPStringFunctions:
       return foldername.split('_', 1)[0]
    
    #e.g. PM_R21079164_...._0004.tif
-   REPRESENTATION_REGEX = "^(R\d{8})(_[A-Za-z0-9]+)+(_?)((\d{4})?).(xml|jp2|tif|TIF|pdf|jpg)$"
+   #REPRESENTATION_REGEX = "^(R\d{8})(_[A-Za-z0-9]+)+(_?)((\d{4})?).(xml|jp2|tif|TIF|pdf|jpg)$"
+   REPRESENTATION_REGEX = "^(PM_)?(AD_)?(R\d{8})(_[A-Za-z0-9]+)+(_?)((\d{4})?).(xml|jp2|tif|TIF|pdf|jpg)$"
    
    #identify out dericative copy for different handling todo: document why
-   DERIVATIVE_COPY_REGEX = "^(R\d{8})(_[A-Za-z0-9]+)+_(\d{4}).jpg$"
+   #DERIVATIVE_COPY_REGEX = "^(R\d{8})(_[A-Za-z0-9]+)+_(\d{4}).jpg$"
+   DERIVATIVE_COPY_REGEX = "^(AD_)?(R\d{8})(_[A-Za-z0-9]+)+_(\d{4}).jpg$"
 
    #make a label from the filename for the ingest sheet
    def makelabel(self, file_item):
